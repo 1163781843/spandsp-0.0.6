@@ -581,7 +581,8 @@ AC_CONFIG_FILES([Makefile
                  test-data/local/Makefile
                  tests/Makefile
                  spandsp.pc
-                 spandsp.spec])
+                 spandsp.spec
+                 Decoder/Makefile])
 
 AC_OUTPUT
 

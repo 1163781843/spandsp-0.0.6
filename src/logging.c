@@ -52,7 +52,11 @@
 
 #include "spandsp/private/logging.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+static void default_message_handler(int level, const char *file, int line, const char *text);
+#else
 static void default_message_handler(int level, const char *text);
+#endif
 
 static message_handler_func_t __span_message = &default_message_handler;
 static error_handler_func_t __span_error = NULL;
@@ -73,10 +77,17 @@ static const char *severities[] =
     "DEBUG 3"
 };
 
+#ifdef GRANDSTREAM_NETWORKS
+static void default_message_handler(int level, const char *file, int line, const char *text)
+{
+    fprintf(stderr, "<%s: %d> %s", file, line, text);
+}
+#else
 static void default_message_handler(int level, const char *text)
 {
     fprintf(stderr, "%s", text);
 }
+#endif
 /*- End of function --------------------------------------------------------*/
 
 SPAN_DECLARE(int) span_log_test(logging_state_t *s, int level)
@@ -87,7 +98,11 @@ SPAN_DECLARE(int) span_log_test(logging_state_t *s, int level)
 }
 /*- End of function --------------------------------------------------------*/
 
+#ifdef GRANDSTREAM_NETWORKS
+SPAN_DECLARE(int) _span_log(logging_state_t *s, int level, const char *file, int line, const char *format, ...)
+#else
 SPAN_DECLARE(int) span_log(logging_state_t *s, int level, const char *format, ...)
+#endif
 {
     char msg[1024 + 1];
     va_list arg_ptr;
@@ -96,7 +111,11 @@ SPAN_DECLARE(int) span_log(logging_state_t *s, int level, const char *format, ..
     struct timeval nowx;
     time_t now;
 
+#ifdef GRANDSTREAM_NETWORKS
+    if (level)
+#else
     if (span_log_test(s, level))
+#endif
     {
         va_start(arg_ptr, format);
         len = 0;
@@ -148,10 +167,19 @@ SPAN_DECLARE(int) span_log(logging_state_t *s, int level, const char *format, ..
             s->span_error(msg);
         else if (__span_error  &&  level == SPAN_LOG_ERROR)
             __span_error(msg);
-        else if (s->span_message)
+        else if (s->span_message) {
+#ifdef GRANDSTREAM_NETWORKS
+            s->span_message(level, file, line, msg);
+#else
             s->span_message(level, msg);
-        else if (__span_message)
+#endif
+        } else if (__span_message) {
+#ifdef GRANDSTREAM_NETWORKS
+            __span_message(level, file, line, msg);
+#else
             __span_message(level, msg);
+#endif
+        }
         /*endif*/
         va_end(arg_ptr);
         return 1;

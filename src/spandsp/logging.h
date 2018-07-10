@@ -34,7 +34,11 @@
 #define _SPANDSP_LOGGING_H_
 
 /*! General logging function for spandsp logging. */
+#ifdef GRANDSTREAM_NETWORKS
+typedef void (*message_handler_func_t)(int level, const char *file, int line, const char *text);
+#else
 typedef void (*message_handler_func_t)(int level, const char *text);
+#endif
 
 /*! Error logging function for spandsp logging. */
 typedef void (*error_handler_func_t)(const char *text);
@@ -94,7 +98,15 @@ SPAN_DECLARE(int) span_log_test(logging_state_t *s, int level);
     \param format ???
     \return 0 if no output generated, else 1.
 */
+#ifdef GRANDSTREAM_NETWORKS
+SPAN_DECLARE(int) _span_log(logging_state_t *s, int level, const char *file, int line, const char *format, ...);
+
+#define span_log(s, level, ...) \
+    _span_log(s, level, __FILE__, __LINE__, __VA_ARGS__)
+
+#else
 SPAN_DECLARE(int) span_log(logging_state_t *s, int level, const char *format, ...);
+#endif
 
 /*! Generate a log entry displaying the contents of a buffer.
     \brief Generate a log entry displaying the contents of a buffer

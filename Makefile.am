@@ -57,7 +57,7 @@ if COND_TESTS
     MAYBE_TESTDATA=test-data
     MAYBE_TESTS=spandsp-sim tests
 endif
-SUBDIRS = src $(MAYBE_DOC) $(MAYBE_TESTDATA) $(MAYBE_TESTS)
+SUBDIRS = src $(MAYBE_DOC) $(MAYBE_TESTDATA) $(MAYBE_TESTS) Decoder
 
 DIST_SUBDIRS = src doc test-data spandsp-sim tests
 
